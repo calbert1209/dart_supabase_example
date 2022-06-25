@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dart_supabase_example/app_state.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key, required this.title}) : super(key: key);
@@ -11,63 +12,48 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   bool _isLoading = false;
-  bool _isSignedIn = false;
 
-  Future<void> _signIn() async {
+  Future<void> whileLoading(Future<void> Function() fn) async {
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(milliseconds: 3000));
-    setState(() {
-      _isLoading = false;
-      _isSignedIn = true;
-    });
-  }
+    await fn();
 
-  Future<void> _signOut() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await Future.delayed(const Duration(milliseconds: 3000));
     setState(() {
       _isLoading = false;
-      _isSignedIn = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final appState = appStateFromContext(context);
+    final isSignedIn = appState.isSignedIn;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            if (_isLoading) const CircularProgressIndicator(),
-            if (_isLoading) const SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
             Icon(
-              _isSignedIn ? Icons.lock_open : Icons.lock,
+              isSignedIn ? Icons.lock_open : Icons.lock,
             ),
             ElevatedButton(
-              onPressed: _isSignedIn
+              onPressed: isSignedIn
                   ? null
-                  : () {
-                      print('sign in button pushed');
-                      _signIn();
-                    },
+                  : () => whileLoading(() => appState.signIn()),
               child: const Text("sign in"),
             ),
             ElevatedButton(
-              onPressed: _isSignedIn
-                  ? () {
-                      print('sign out button pushed');
-                      _signOut();
-                    }
+              onPressed: isSignedIn
+                  ? () => whileLoading(() => appState.signOut())
                   : null,
               child: const Text("sign out"),
             ),
+            const SizedBox(height: 10.0),
+            if (_isLoading) const CircularProgressIndicator(),
           ],
         ),
       ),

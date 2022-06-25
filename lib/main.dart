@@ -3,15 +3,23 @@ import 'package:dart_supabase_example/pages/sign_in_page.dart';
 import 'package:dart_supabase_example/services/supabase_secrets_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import 'app_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final config = await SupabaseSecretsStore.loadFromAssetBundle(
+  final secretsStore = await SupabaseSecretsStore.loadFromAssetBundle(
     rootBundle.loadStructuredData<SupabaseSecretsStore>,
   );
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AppState(secretsStore),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

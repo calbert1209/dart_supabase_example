@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as base_provider;
 import 'package:supabase/supabase.dart';
@@ -68,7 +69,7 @@ class AppState with ChangeNotifier {
     }
   }
 
-  Future<void> signIn() async {
+  Future<void> signIn(String userId, String password) async {
     final session = await _tryToRecoverSession(_sessionStore, _client);
     if (session != null) {
       isSignedIn = true;
@@ -76,7 +77,7 @@ class AppState with ChangeNotifier {
       return;
     }
 
-    return _signIn(_secretStore.userId, _secretStore.password);
+    return _signIn(userId, password);
   }
 
   Future<void> signOut() async {
@@ -91,7 +92,10 @@ class AppState with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  String? get debugUserId => kDebugMode ? _secretStore.userId : null;
+  String? get debugPassword => kDebugMode ? _secretStore.password : null;
 }
 
-appStateFromContext(BuildContext context) =>
+AppState appStateFromContext(BuildContext context) =>
     base_provider.Provider.of<AppState>(context);

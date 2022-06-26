@@ -1,4 +1,5 @@
 import 'package:dart_supabase_example/widgets/fixed_height_linear_progress_indicator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_supabase_example/app_state.dart';
 
@@ -13,6 +14,8 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   bool _isLoading = false;
+  String? _userId;
+  String? _password;
 
   Future<void> whileLoading(Future<void> Function() fn) async {
     setState(() {
@@ -29,6 +32,8 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     final appState = appStateFromContext(context);
     final isSignedIn = appState.isSignedIn;
+    final userId = (_userId ?? appState.debugUserId);
+    final password = (_password ?? appState.debugPassword);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -44,9 +49,11 @@ class _SignInPageState extends State<SignInPage> {
               color: Colors.teal.shade800,
             ),
             ElevatedButton(
-              onPressed: isSignedIn
+              onPressed: isSignedIn || userId == null || password == null
                   ? null
-                  : () => whileLoading(() => appState.signIn()),
+                  : () => whileLoading(
+                        () => appState.signIn(userId, password),
+                      ),
               child: const Text("sign in"),
             ),
             ElevatedButton(
@@ -54,6 +61,28 @@ class _SignInPageState extends State<SignInPage> {
                   ? () => whileLoading(() => appState.signOut())
                   : null,
               child: const Text("sign out"),
+            ),
+            const SizedBox(height: 18),
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                contentPadding: EdgeInsets.all(10.0),
+              ),
+              initialValue: appState.debugUserId,
+              onChanged: (value) => setState(() {
+                _userId = value;
+              }),
+            ),
+            TextFormField(
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                contentPadding: EdgeInsets.all(10.0),
+              ),
+              initialValue: appState.debugPassword,
+              onChanged: (value) => setState(() {
+                _password = value;
+              }),
             ),
           ],
         ),

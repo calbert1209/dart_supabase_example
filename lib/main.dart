@@ -14,9 +14,9 @@ Future<void> main() async {
   final secretsStore = await SupabaseSecretsStore.loadFromAssetBundle(
     rootBundle.loadStructuredData<SupabaseSecretsStore>,
   );
-
   final supabaseClient = SupabaseClient(secretsStore.url, secretsStore.key);
   final sessionStore = await LocalSessionStore.initialize();
+
   final appState = await AppState.initialize(
     secretsStore,
     supabaseClient,
@@ -36,11 +36,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Dart Supabase Example',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
       ),
-      home: const SignInPage(title: 'Flutter Demo Home Page'),
+      home: const SignInPage(title: 'Dart Supabase Example'),
     );
   }
 }

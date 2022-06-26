@@ -41,6 +41,7 @@ class _SignInPageState extends State<SignInPage> {
             const SizedBox(height: 10.0),
             Icon(
               isSignedIn ? Icons.lock_open : Icons.lock,
+              color: Colors.teal.shade800,
             ),
             ElevatedButton(
               onPressed: isSignedIn

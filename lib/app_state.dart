@@ -1,44 +1,44 @@
-import 'package:dart_supabase_example/services/supabase_secrets_store.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as base_provider;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase/supabase.dart';
-
-const String sessionEntryKey = 'sessionEntry';
+import 'package:dart_supabase_example/services/local_session_store.dart';
+import 'package:dart_supabase_example/services/supabase_secrets_store.dart';
 
 class AppState with ChangeNotifier {
   AppState._({
     required SupabaseSecretsStore secretsStore,
     required SupabaseClient client,
-    required SharedPreferences preferences,
+    required LocalSessionStore sessionStore,
     this.isSignedIn = false,
   })  : _secretStore = secretsStore,
         _client = client,
-        _preferences = preferences;
+        _sessionStore = sessionStore;
 
   final SupabaseSecretsStore _secretStore;
   final SupabaseClient _client;
-  final SharedPreferences _preferences;
+  final LocalSessionStore _sessionStore;
   bool isSignedIn;
   GotrueError? error;
 
   static Future<AppState> initialize(
     SupabaseSecretsStore secretsStore,
     SupabaseClient client,
-    SharedPreferences preferences,
+    LocalSessionStore sessionStore,
   ) async {
-    final session = await _tryToRecoverSession(preferences, client);
+    final session = await _tryToRecoverSession(sessionStore, client);
     return AppState._(
       secretsStore: secretsStore,
       client: client,
-      preferences: preferences,
+      sessionStore: sessionStore,
       isSignedIn: session != null,
     );
   }
 
-  static Future<Session?> _tryToRecoverSession(preferences, client) async {
-    final String? serializedSession = preferences.getString(sessionEntryKey);
+  static Future<Session?> _tryToRecoverSession(
+    LocalSessionStore sessionStore,
+    SupabaseClient client,
+  ) async {
+    final String? serializedSession = sessionStore.serializedSession;
     if (serializedSession == null) return Future.value(null);
 
     try {
@@ -51,7 +51,7 @@ class AppState with ChangeNotifier {
     return Future.value(null);
   }
 
-  Future<bool> _clearSession() => _preferences.remove(sessionEntryKey);
+  Future<bool> _clearSession() => _sessionStore.clear();
 
   Future<void> _signIn(String email, String password) async {
     final response = await _client.auth.signIn(
@@ -62,15 +62,14 @@ class AppState with ChangeNotifier {
       error = response.error;
       print(error);
     } else {
-      final serializedSession = response.data!.persistSessionString;
-      await _preferences.setString(sessionEntryKey, serializedSession);
+      await _sessionStore.save(response.data!);
       isSignedIn = true;
       notifyListeners();
     }
   }
 
   Future<void> signIn() async {
-    final session = await _tryToRecoverSession(_preferences, _client);
+    final session = await _tryToRecoverSession(_sessionStore, _client);
     if (session != null) {
       isSignedIn = true;
       notifyListeners();

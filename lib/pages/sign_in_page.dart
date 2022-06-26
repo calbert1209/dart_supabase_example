@@ -64,6 +64,8 @@ class _SignInPageState extends State<SignInPage> {
             ),
             const SizedBox(height: 18),
             TextFormField(
+              readOnly: isSignedIn,
+              enabled: !isSignedIn,
               decoration: const InputDecoration(
                 labelText: 'Email',
                 contentPadding: EdgeInsets.all(10.0),
@@ -73,7 +75,10 @@ class _SignInPageState extends State<SignInPage> {
                 _userId = value;
               }),
             ),
+            const SizedBox(height: 10.0),
             TextFormField(
+              readOnly: isSignedIn,
+              enabled: !isSignedIn,
               obscureText: true,
               decoration: const InputDecoration(
                 labelText: 'Password',

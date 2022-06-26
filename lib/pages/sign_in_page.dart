@@ -1,3 +1,4 @@
+import 'package:dart_supabase_example/widgets/fixed_height_linear_progress_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_supabase_example/app_state.dart';
 
@@ -36,6 +37,7 @@ class _SignInPageState extends State<SignInPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            FixedHeightLinearProgressIndicator(isShowing: _isLoading),
             const SizedBox(height: 10.0),
             Icon(
               isSignedIn ? Icons.lock_open : Icons.lock,
@@ -52,8 +54,6 @@ class _SignInPageState extends State<SignInPage> {
                   : null,
               child: const Text("sign out"),
             ),
-            const SizedBox(height: 10.0),
-            if (_isLoading) const CircularProgressIndicator(),
           ],
         ),
       ),

@@ -1,5 +1,4 @@
 import 'package:dart_supabase_example/widgets/fixed_height_linear_progress_indicator.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dart_supabase_example/app_state.dart';
 

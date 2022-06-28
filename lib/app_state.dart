@@ -1,4 +1,5 @@
 import 'package:dart_supabase_example/services/snack_bar_dispatcher.dart';
+import 'package:dart_supabase_example/services/supabase_platform_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as base_provider;
@@ -9,87 +10,62 @@ import 'package:dart_supabase_example/services/supabase_secrets_store.dart';
 class AppState with ChangeNotifier {
   AppState._({
     required ISecretsStore secretsStore,
-    required SupabaseClient client,
+    required IPlatformClient platformClient,
     required ISessionStore sessionStore,
     required ISnackBarDispatcher snackBarDispatcher,
     this.isSignedIn = false,
   })  : _secretStore = secretsStore,
-        _client = client,
+        _platformClient = platformClient,
         _sessionStore = sessionStore,
         _snackBarDispatcher = snackBarDispatcher;
 
   final ISecretsStore _secretStore;
-  final SupabaseClient _client;
+  final IPlatformClient _platformClient;
   final ISessionStore _sessionStore;
   final ISnackBarDispatcher _snackBarDispatcher;
 
   bool isSignedIn;
   GotrueError? error;
 
-  static Future<AppState> initialize(
-    ISecretsStore secretsStore,
-    SupabaseClient client,
-    ISessionStore sessionStore,
-    ISnackBarDispatcher snackBarDispatcher,
-  ) async {
-    final session = await _tryToRecoverSession(sessionStore, client);
+  static Future<AppState> initialize({
+    required ISecretsStore secretsStore,
+    required IPlatformClient platformClient,
+    required ISessionStore sessionStore,
+    required ISnackBarDispatcher snackBarDispatcher,
+  }) async {
+    final session = await platformClient.tryToRecoverSession(
+      sessionStore.serializedSession,
+    );
+
     return AppState._(
       secretsStore: secretsStore,
-      client: client,
+      platformClient: platformClient,
       sessionStore: sessionStore,
       snackBarDispatcher: snackBarDispatcher,
       isSignedIn: session != null,
     );
   }
 
-  static Future<Session?> _tryToRecoverSession(
-    ISessionStore sessionStore,
-    SupabaseClient client,
-  ) async {
-    final String? serializedSession = sessionStore.serializedSession;
-    if (serializedSession == null) return Future.value(null);
-
-    try {
-      final response = await client.auth.recoverSession(serializedSession);
-      return response.data;
-    } catch (e) {
-      // ignore: avoid_print
-      print(e);
-    }
-
-    return Future.value(null);
-  }
-
-  Future<void> _signIn(String email, String password) async {
-    final response = await _client.auth.signIn(
-      email: email,
-      password: password,
-    );
-    if (response.error != null) {
-      error = response.error;
-      _snackBarDispatcher.showText(error!.message);
-    } else {
-      await _sessionStore.save(response.data!);
-      isSignedIn = true;
-      _snackBarDispatcher.showText('You\'re in like Flynn');
-      notifyListeners();
-    }
-  }
-
   Future<void> signIn(String userId, String password) async {
-    final session = await _tryToRecoverSession(_sessionStore, _client);
-    if (session != null) {
-      isSignedIn = true;
+    try {
+      isSignedIn = await _platformClient.signIn(
+        userId,
+        password,
+        serializedSession: _sessionStore.serializedSession,
+      );
+    } catch (e) {
+      isSignedIn = false;
+    } finally {
       notifyListeners();
-      return;
+      _snackBarDispatcher.showText(
+        isSignedIn ? 'signed in' : 'could not sign in',
+      );
     }
-
-    return _signIn(userId, password);
   }
 
   Future<void> signOut() async {
     await _sessionStore.clear();
-    final response = await _client.auth.signOut();
+    final response = await _platformClient.signOut();
 
     if (response.error != null) {
       error = response.error;

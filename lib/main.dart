@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dart_supabase_example/services/snack_bar_dispatcher.dart';
+import 'package:dart_supabase_example/services/supabase_platform_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -15,18 +16,16 @@ Future<void> main() async {
   final secretsStore = await SupabaseSecretsStore.loadFromAssetBundle(
     rootBundle.loadStructuredData<SupabaseSecretsStore>,
   );
-  final supabaseClient = SupabaseClient(secretsStore.url, secretsStore.key);
   final sessionStore = await LocalSessionStore.initialize();
-
-  final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
-      GlobalKey<ScaffoldMessengerState>();
-  final snackBarDispatcher = SnackBarDispatcher(rootScaffoldMessengerKey);
+  final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   final appState = await AppState.initialize(
-    secretsStore,
-    supabaseClient,
-    sessionStore,
-    snackBarDispatcher,
+    secretsStore: secretsStore,
+    sessionStore: sessionStore,
+    platformClient: SupabasePlatformClient(
+      SupabaseClient(secretsStore.url, secretsStore.key),
+    ),
+    snackBarDispatcher: SnackBarDispatcher(rootScaffoldMessengerKey),
   );
 
   runApp(

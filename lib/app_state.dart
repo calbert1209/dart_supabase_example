@@ -8,9 +8,9 @@ import 'package:dart_supabase_example/services/supabase_secrets_store.dart';
 
 class AppState with ChangeNotifier {
   AppState._({
-    required SupabaseSecretsStore secretsStore,
+    required ISecretsStore secretsStore,
     required SupabaseClient client,
-    required LocalSessionStore sessionStore,
+    required ISessionStore sessionStore,
     required ISnackBarDispatcher snackBarDispatcher,
     this.isSignedIn = false,
   })  : _secretStore = secretsStore,
@@ -18,18 +18,18 @@ class AppState with ChangeNotifier {
         _sessionStore = sessionStore,
         _snackBarDispatcher = snackBarDispatcher;
 
-  final SupabaseSecretsStore _secretStore;
+  final ISecretsStore _secretStore;
   final SupabaseClient _client;
-  final LocalSessionStore _sessionStore;
+  final ISessionStore _sessionStore;
   final ISnackBarDispatcher _snackBarDispatcher;
 
   bool isSignedIn;
   GotrueError? error;
 
   static Future<AppState> initialize(
-    SupabaseSecretsStore secretsStore,
+    ISecretsStore secretsStore,
     SupabaseClient client,
-    LocalSessionStore sessionStore,
+    ISessionStore sessionStore,
     ISnackBarDispatcher snackBarDispatcher,
   ) async {
     final session = await _tryToRecoverSession(sessionStore, client);
@@ -43,7 +43,7 @@ class AppState with ChangeNotifier {
   }
 
   static Future<Session?> _tryToRecoverSession(
-    LocalSessionStore sessionStore,
+    ISessionStore sessionStore,
     SupabaseClient client,
   ) async {
     final String? serializedSession = sessionStore.serializedSession;

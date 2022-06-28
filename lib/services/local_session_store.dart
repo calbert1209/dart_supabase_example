@@ -3,7 +3,13 @@ import 'package:supabase/supabase.dart';
 
 const String _sessionEntryKey = 'sessionEntry';
 
-class LocalSessionStore {
+abstract class ISessionStore {
+  String? get serializedSession;
+  Future<bool> save(Session session);
+  Future<bool> clear();
+}
+
+class LocalSessionStore implements ISessionStore {
   LocalSessionStore._(this._preferences);
 
   final SharedPreferences _preferences;
@@ -13,12 +19,15 @@ class LocalSessionStore {
     return LocalSessionStore._(preferences);
   }
 
+  @override
   String? get serializedSession => _preferences.getString(_sessionEntryKey);
 
+  @override
   Future<bool> save(Session session) => _preferences.setString(
         _sessionEntryKey,
         session.persistSessionString,
       );
 
+  @override
   Future<bool> clear() => _preferences.remove(_sessionEntryKey);
 }

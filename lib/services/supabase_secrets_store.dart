@@ -7,7 +7,14 @@ typedef AssetLoaderFunction<T> = Future<T> Function(
   Future<T> Function(String value) parser,
 );
 
-class SupabaseSecretsStore {
+abstract class ISecretsStore {
+  String get url;
+  String get key;
+  String get userId;
+  String get password;
+}
+
+class SupabaseSecretsStore implements ISecretsStore {
   SupabaseSecretsStore._({
     required this.url,
     required this.key,
@@ -15,9 +22,13 @@ class SupabaseSecretsStore {
     required this.password,
   });
 
+  @override
   final String url;
+  @override
   final String key;
+  @override
   final String userId;
+  @override
   final String password;
 
   factory SupabaseSecretsStore._fromJson(Map<String, dynamic> jsonMap) {

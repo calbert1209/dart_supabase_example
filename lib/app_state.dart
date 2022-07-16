@@ -79,7 +79,7 @@ class AppState with ChangeNotifier {
 
   String? get debugUserId => kDebugMode ? _secretStore.userId : null;
   String? get debugPassword => kDebugMode ? _secretStore.password : null;
-}
 
-AppState appStateFromContext(BuildContext context) =>
-    base_provider.Provider.of<AppState>(context);
+  static AppState of(BuildContext context) =>
+      base_provider.Provider.of<AppState>(context);
+}

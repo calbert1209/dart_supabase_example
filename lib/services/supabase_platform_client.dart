@@ -1,16 +1,17 @@
 import 'package:supabase/supabase.dart';
 
-abstract class IPlatformClient {
-  Future<Session?> tryToRecoverSession(String? serializedSession);
+abstract class IPlatformClient<S, R> {
+  Future<S?> tryToRecoverSession(String? serializedSession);
   Future<bool> signIn(
     String userId,
     String password, {
     String? serializedSession,
   });
-  Future<GotrueResponse> signOut();
+  Future<R> signOut();
 }
 
-class SupabasePlatformClient implements IPlatformClient {
+class SupabasePlatformClient
+    implements IPlatformClient<Session, GotrueResponse> {
   SupabasePlatformClient(SupabaseClient client) : _client = client;
 
   final SupabaseClient _client;

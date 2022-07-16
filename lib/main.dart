@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:dart_supabase_example/services/snack_bar_dispatcher.dart';
-import 'package:dart_supabase_example/services/supabase_platform_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +7,8 @@ import 'package:dart_supabase_example/app_state.dart';
 import 'package:dart_supabase_example/pages/sign_in_page.dart';
 import 'package:dart_supabase_example/services/local_session_store.dart';
 import 'package:dart_supabase_example/services/supabase_secrets_store.dart';
+import 'package:dart_supabase_example/services/snack_bar_dispatcher.dart';
+import 'package:dart_supabase_example/services/supabase_platform_client.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
